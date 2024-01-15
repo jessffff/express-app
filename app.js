@@ -1,6 +1,6 @@
-const app = require('./app');
-const port = 5000;
-
+const express = require("express");
+const app = express();
+const port = process.env.NODE_ENV === 'test' ? 5001 : 5000;
 
 
 const movies = [
@@ -30,17 +30,26 @@ const movies = [
   },
 ];
 
+app.listen(port, () => {
+    console.info(`Server is listening on port ${port}`);
+  }).on("error", (err) => {
+    console.error("Error:", err.message);
+  });
+
+// Route GET /
 app.get("/", (req, res) => {
   res.send("Welcome to my favourite movie list");
 });
 
+// Route GET /api/movies
 app.get("/api/movies", (req, res) => {
   res.status(200).json(movies);
 });
 
+// Route GET /api/movies/:id
 app.get("/api/movies/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const movie = movies.find(m => m.id === id);
+  const movieId = parseInt(req.params.id);
+  const movie = movies.find((m) => m.id === movieId);
 
   if (movie) {
     res.status(200).json(movie);
@@ -49,11 +58,4 @@ app.get("/api/movies/:id", (req, res) => {
   }
 });
 
-
-app
-  .listen(port, () => {
-    console.info(`Server is listening on port ${port}`);
-  })
-  .on("error", (err) => {
-    console.error("Error:", err.message);
-  });
+module.exports = { app, port };
